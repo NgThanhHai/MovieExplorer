@@ -1,5 +1,6 @@
 package com.pien.moviesexplorer.data.source.local
 
+import android.text.format.DateUtils
 import com.pien.moviesexplorer.data.source.MovieEntityMapper
 import com.pien.moviesexplorer.data.source.local.dao.MovieDAO
 import com.pien.moviesexplorer.domain.models.Movie
@@ -12,7 +13,11 @@ class LocalDataSource(private val movieDao: MovieDAO, private val mapper: MovieE
 
     fun getSavedMovies(): Flow<List<Movie>> {
         return movieDao.getAllMovies().flowOn(Dispatchers.IO).map {
-            it.map {
+            it.filter {
+                val isValid = DateUtils.isToday(it.createdAt.time)
+                if(!isValid) movieDao.delete(it)
+                isValid
+            }.map {
                 mapper.mapMovieEntity(it)
             }
         }

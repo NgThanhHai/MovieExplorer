@@ -13,7 +13,7 @@ class MovieEntityMapper {
         return Movie(
             adult = movieEntity.adult,
             backdropPath = movieEntity.backdropPath,
-            id = movieEntity.movieId,
+            id = movieEntity.id,
             originalTitle = movieEntity.originalTitle,
             overview = movieEntity.overview,
             posterPath = movieEntity.posterPath,
@@ -58,7 +58,7 @@ class MovieEntityMapper {
         return MovieEntity(
             adult = movie.adult ?: false,
             backdropPath = movie.backdropPath ?: "",
-            movieId = movie.id,
+            id = movie.id,
             originalTitle = movie.originalTitle ?: "",
             overview = movie.overview ?: "",
             posterPath = movie.posterPath ?: "",

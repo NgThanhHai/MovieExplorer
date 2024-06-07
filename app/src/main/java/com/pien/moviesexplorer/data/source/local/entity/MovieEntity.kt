@@ -8,9 +8,8 @@ import java.util.Date
 
 @Entity(tableName = tableName)
 data class MovieEntity(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey(autoGenerate = false)
     val id: Int = 0,
-    val movieId: Int = 0,
     var backdropPath : String? = null,
     var originalTitle: String? = null,
     var overview: String? = null,

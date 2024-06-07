@@ -24,7 +24,7 @@ interface MovieDAO {
     @Query("SELECT * FROM MovieEntity")
     fun getAllMovies(): Flow<List<MovieEntity>>
 
-    @Query("SELECT * FROM MovieEntity WHERE movieId = :id")
+    @Query("SELECT * FROM MovieEntity WHERE id = :id ORDER BY createdAt ASC")
     fun getMovieById(id: Int): Flow<MovieEntity>
 
 }
