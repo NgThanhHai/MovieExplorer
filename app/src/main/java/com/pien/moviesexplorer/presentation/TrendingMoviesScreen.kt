@@ -4,6 +4,7 @@ import android.graphics.drawable.Drawable
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,11 +19,15 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
@@ -38,8 +43,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,6 +63,7 @@ fun TrendingMoviesScreen(uiState: UiState, state: LazyGridState, onQueryTextChan
     var searchActive by remember {
         mutableStateOf(false)
     }
+    var focusManager = LocalFocusManager.current
     LaunchedEffect(state.isScrollInProgress && !state.canScrollForward) {
         if(uiState.listMovies.isNotEmpty()) {
             loadingMore()
@@ -87,7 +95,28 @@ fun TrendingMoviesScreen(uiState: UiState, state: LazyGridState, onQueryTextChan
                 onSearch = { searchActive = false },
                 onActiveChange = { searchActive = it },
                 active = true,
-                content = { }
+                content = { },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = ""
+                    )
+                },
+                trailingIcon = {
+                    if(searchActive) {
+                        Icon(Icons.Default.Clear,
+                            contentDescription = "",
+                            modifier = Modifier.clickable {
+                                if (uiState.searchText.isNotEmpty()) {
+                                    onQueryTextChanged("")
+                                } else {
+                                    focusManager.clearFocus()
+                                    searchActive  = false
+                                }
+                            }
+                        )
+                    }
+                }
             )
             Spacer(modifier = Modifier.height(16.dp))
             if(uiState.showLoading) {
@@ -157,8 +186,10 @@ fun MovieItem(movie: Movie, onClickMovie: () -> Unit, modifier: Modifier = Modif
             text = movie.title,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 8.dp).padding(horizontal = 2.dp)
+            modifier = Modifier.padding(top = 8.dp).padding(horizontal = 2.dp),
+            maxLines = 2
         )
+        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Date: " + movie.releaseDate.toString(),
             fontSize = 16.sp,

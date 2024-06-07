@@ -96,10 +96,12 @@ fun MovieDetailScreen(uiState: UiState, onBackPressed: () -> Unit) {
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp)), urlPath)
                 }
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Release Date: ${it.releaseDate}",
                     style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 if (movie.genresName.isNotEmpty()) {
