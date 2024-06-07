@@ -55,6 +55,7 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.pien.moviesexplorer.BuildConfig
+import com.pien.moviesexplorer.common.NoConnectionScreen
 import com.pien.moviesexplorer.domain.models.Movie
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,7 +64,7 @@ fun TrendingMoviesScreen(uiState: UiState, state: LazyGridState, onQueryTextChan
     var searchActive by remember {
         mutableStateOf(false)
     }
-    var focusManager = LocalFocusManager.current
+    val focusManager = LocalFocusManager.current
     LaunchedEffect(state.isScrollInProgress && !state.canScrollForward) {
         if(uiState.listMovies.isNotEmpty()) {
             loadingMore()
@@ -127,19 +128,21 @@ fun TrendingMoviesScreen(uiState: UiState, state: LazyGridState, onQueryTextChan
                             .width(48.dp)
                             .padding(8.dp))
                 }
-            }
-            LazyVerticalGrid(columns = GridCells.Adaptive(170.dp), state = state, modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                items(uiState.listMovies) { movie ->
-                    MovieItem(movie, onClickMovie = {
-                        onClickMovie(movie)
-                    })
-                    Spacer(modifier = Modifier.height(16.dp))
+            } else if(uiState.errorToast.isNotEmpty()) {
+                NoConnectionScreen(modifier = Modifier.padding(30.dp), uiState.errorToast)
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(170.dp), state = state, modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(uiState.listMovies) { movie ->
+                        MovieItem(movie, onClickMovie = {
+                            onClickMovie(movie)
+                        })
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
                 }
-            }
-            if(uiState.errorToast.isNotEmpty()) {
-                Toast.makeText(LocalContext.current, uiState.errorToast, Toast.LENGTH_SHORT).show()
             }
         }
     }

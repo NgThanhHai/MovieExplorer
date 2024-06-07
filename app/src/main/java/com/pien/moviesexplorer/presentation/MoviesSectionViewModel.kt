@@ -42,7 +42,7 @@ class MoviesSectionViewModel(val repository: MovieRepository): ViewModel() {
     fun searchByText(query: String) {
         _uiState.value = _uiState.value.copy(searchText = query)
         if(query.isNotEmpty()) {
-            repository.searchMovie(query).catch {it.printStackTrace()
+            repository.searchMovie(query).catch {
                 it.printStackTrace()
                 _uiState.value = _uiState.value.copy(showLoading = false, errorToast = "Something went wrong")
             }.onEach { res ->
@@ -66,8 +66,9 @@ class MoviesSectionViewModel(val repository: MovieRepository): ViewModel() {
     fun onClickMovie(movie: Movie) {
         repository.getMovieDetail(movie.id).onStart {
             _uiState.value = _uiState.value.copy(shouldShowHomePage = false, selectedMovie = null)
-        }.catch { throwable -> throwable.printStackTrace()
+        }.catch { throwable ->
             throwable.printStackTrace()
+            _uiState.value = _uiState.value.copy(showLoading = false, errorToast = throwable.message.toString())
         }.onEach { res ->
             when(res) {
                 is ApiResponse.Loading -> {
