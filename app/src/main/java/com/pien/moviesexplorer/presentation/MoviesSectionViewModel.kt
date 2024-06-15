@@ -65,32 +65,27 @@ class MoviesSectionViewModel(val repository: MovieRepository): ViewModel() {
 
     fun onClickMovie(movie: Movie) {
         repository.getMovieDetail(movie.id).onStart {
-            _uiState.value = _uiState.value.copy(shouldShowHomePage = false, selectedMovie = null)
+            _uiState.value = _uiState.value.copy(selectedMovie = null)
         }.catch { throwable ->
             throwable.printStackTrace()
-            _uiState.value = _uiState.value.copy(showLoading = false, errorToast = throwable.message.toString())
+            _uiState.value = _uiState.value.copy(errorToast = throwable.message.toString())
         }.onEach { res ->
             when(res) {
                 is ApiResponse.Loading -> {
-                    _uiState.value = _uiState.value.copy(showLoading = true)
+                    _uiState.value = _uiState.value.copy()
                 }
                 is ApiResponse.Error -> {
-                    _uiState.value = _uiState.value.copy(showLoading = false, errorToast = res.throwable.message.toString())
+                    _uiState.value = _uiState.value.copy(errorToast = res.throwable.message.toString())
                 }
                 is ApiResponse.Success<*> -> {
-                    _uiState.value = _uiState.value.copy(showLoading = false, selectedMovie = res.data as Movie, errorToast = "")
+                    _uiState.value = _uiState.value.copy(selectedMovie = res.data as Movie, errorToast = "")
                 }
             }
         }.launchIn(viewModelScope)
     }
-
-    fun clearSelectedMovie() {
-        _uiState.value = _uiState.value.copy(shouldShowHomePage = true)
-    }
 }
 
 data class UiState(
-    var shouldShowHomePage: Boolean = true,
     var listMovies: List<Movie> = listOf(),
     var showLoading: Boolean = false,
     var errorToast: String = "",

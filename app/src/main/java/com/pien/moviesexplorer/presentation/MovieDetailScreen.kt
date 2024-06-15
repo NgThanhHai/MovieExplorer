@@ -1,6 +1,9 @@
 package com.pien.moviesexplorer.presentation
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -40,15 +43,15 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
+import com.pien.moviesexplorer.BuildConfig
 import com.pien.moviesexplorer.R
 import com.pien.moviesexplorer.common.HyperlinkText
 import com.pien.moviesexplorer.common.ImagePosterView
 import com.pien.moviesexplorer.common.NoConnectionScreen
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun MovieDetailScreen(uiState: UiState, onBackPressed: () -> Unit) {
-    val navController = rememberNavController()
+fun SharedTransitionScope.MovieDetailScreen(uiState: UiState, posterUrl: String, animatedVisibilityScope: AnimatedVisibilityScope, onBackPressed: () -> Unit) {
     val movie = uiState.selectedMovie
     BackHandler {
         onBackPressed()
@@ -66,7 +69,7 @@ fun MovieDetailScreen(uiState: UiState, onBackPressed: () -> Unit) {
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
+                    IconButton(onClick = { onBackPressed() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
@@ -85,6 +88,17 @@ fun MovieDetailScreen(uiState: UiState, onBackPressed: () -> Unit) {
                 .fillMaxSize()
                 .padding(contentPadding)
         ) {
+            posterUrl.let {
+                ImagePosterView(
+                    modifier = Modifier
+                        .height(400.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp)).sharedElement(
+                            rememberSharedContentState(key = "image-${BuildConfig.BASE_URL_IMAGE}/${it}"),
+                            animatedVisibilityScope,
+                        ), "/$it"
+                )
+            }
             if (uiState.showLoading) {
                 Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                     IndeterminateCircularIndicator(
@@ -94,20 +108,13 @@ fun MovieDetailScreen(uiState: UiState, onBackPressed: () -> Unit) {
                             .padding(8.dp)
                     )
                 }
-            } else if (uiState.errorToast.isNotEmpty()) {
+            } else
+                if (uiState.errorToast.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 NoConnectionScreen(modifier = Modifier.padding(30.dp), uiState.errorToast)
             } else {
                 Spacer(modifier = Modifier.height(16.dp))
                 movie?.let {
-                    it.posterPath?.let { urlPath ->
-                        ImagePosterView(
-                            modifier = Modifier
-                                .height(400.dp)
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp)), urlPath
-                        )
-                    }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Release Date: ${it.releaseDate}",

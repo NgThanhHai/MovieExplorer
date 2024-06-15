@@ -22,6 +22,8 @@ roomKtx = "2.6.1"
 roomKtxVersion = "2.5.2"
 roomPaging = "2.6.1"
 roomRuntime = "2.6.1"
+animationCompose = "1.7.0-alpha07"
+foundationCompose = "1.7.0-alpha07"
 navigationCompose = "2.7.7"
 
 [libraries]
@@ -51,6 +53,9 @@ material = { group = "com.google.android.material", name = "material", version.r
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+
+androidx-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "animationCompose" }
+androidx-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundationCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

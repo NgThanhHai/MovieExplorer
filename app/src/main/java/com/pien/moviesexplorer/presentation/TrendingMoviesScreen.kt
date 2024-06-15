@@ -2,6 +2,9 @@ package com.pien.moviesexplorer.presentation
 
 import android.graphics.drawable.Drawable
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -58,9 +61,9 @@ import com.pien.moviesexplorer.BuildConfig
 import com.pien.moviesexplorer.common.NoConnectionScreen
 import com.pien.moviesexplorer.domain.models.Movie
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun TrendingMoviesScreen(uiState: UiState, state: LazyGridState, onQueryTextChanged: (String) -> Unit, loadingMore: () -> Unit, onClickMovie: (Movie) -> Unit) {
+fun SharedTransitionScope.TrendingMoviesScreen(uiState: UiState, state: LazyGridState, animatedVisibilityScope: AnimatedVisibilityScope, onQueryTextChanged: (String) -> Unit, loadingMore: () -> Unit, onClickMovie: (Movie) -> Unit) {
     var searchActive by remember {
         mutableStateOf(false)
     }
@@ -139,7 +142,7 @@ fun TrendingMoviesScreen(uiState: UiState, state: LazyGridState, onQueryTextChan
                     items(uiState.listMovies) { movie ->
                         MovieItem(movie, onClickMovie = {
                             onClickMovie(movie)
-                        })
+                        }, animatedVisibilityScope)
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
@@ -157,8 +160,9 @@ fun IndeterminateCircularIndicator(modifier: Modifier = Modifier) {
         trackColor = MaterialTheme.colorScheme.surfaceVariant,
     )
 }
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun MovieItem(movie: Movie, onClickMovie: () -> Unit, modifier: Modifier = Modifier) {
+fun SharedTransitionScope.MovieItem(movie: Movie, onClickMovie: () -> Unit, animatedVisibilityScope: AnimatedVisibilityScope, modifier: Modifier = Modifier) {
     var image by remember { mutableStateOf<Drawable?>(null) }
     Card(elevation = CardDefaults.cardElevation(defaultElevation = 10.dp), modifier = modifier
         .fillMaxWidth()
@@ -181,7 +185,13 @@ fun MovieItem(movie: Movie, onClickMovie: () -> Unit, modifier: Modifier = Modif
                 contentDescription = movie.title,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp),
+                    .height(200.dp)
+                    .sharedElement(
+                        state = rememberSharedContentState(
+                            key = "image-${BuildConfig.BASE_URL_IMAGE}${movie.posterPath}"
+                        ),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                    ),
                 contentScale = ContentScale.Crop
             )
         }
@@ -189,19 +199,25 @@ fun MovieItem(movie: Movie, onClickMovie: () -> Unit, modifier: Modifier = Modif
             text = movie.title,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 8.dp).padding(horizontal = 2.dp),
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .padding(horizontal = 2.dp),
             maxLines = 2
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Date: " + movie.releaseDate.toString(),
             fontSize = 16.sp,
-            modifier = Modifier.padding(top = 8.dp).padding(horizontal = 2.dp)
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .padding(horizontal = 2.dp)
         )
         Text(
             text = "Rating: " + movie.voteAverage.toString(),
             fontSize = 16.sp,
-            modifier = Modifier.padding(top = 8.dp).padding(horizontal = 2.dp)
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .padding(horizontal = 2.dp)
         )
     }
 }
